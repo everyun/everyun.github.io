@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My first file</title>
+  <link rel="stylesheet" href="http://app.classeur.io/base-min.css" />
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+<body>
+  <div class="export-container"><h1 id="swift-实现类似于-node.js-风格的路径处理">Swift 实现类似于 Node.js 风格的路径处理</h1>
+<p>使用过的 Node.js 的同学都知道， Node 的 Path 模块功能十分强大， 处理各种路径请求时十分方便， 正好最近做的项目中涉及大了大量的路径合并， 切分操作， 手动拼接了一段时间后，发现代码的可维护性大幅下降， 所以用 Swift 实现了一个简单的路径处理模块。</p>
+<hr>
+<h2 id="预期功能">1. 预期功能</h2>
+<ul>
+<li>目标格式： <code>/foo/bar</code></li>
+<li>传入一个不合法的路径， 可以格式化成目标格式</li>
+<li>传入一个路径数组， 能够合并成目标格式</li>
+<li>能够向现有的路径上添加一个路径或几个路径</li>
+<li>能够从现有路径上移除 n 级路径</li>
+<li>支持 Http 路径</li>
+</ul>
+<h2 id="api-设计">2. API 设计</h2>
+<ul>
+<li>初始化: <code>Path(path: String...)</code></li>
+<li>添加路径: <code>append(path: String...)</code></li>
+<li>添加路径数组: <code>append(pathList: [Stirng])</code></li>
+<li>移除最后一级路径: <code>popLast()</code></li>
+<li>移除最后 n 级路径: <code>pop(level: Int)</code></li>
+<li>获取目标路径: <code>rawValue()</code></li>
+<li>获取目录风格的路径 : <code>rawValue(dir: Bool)</code></li>
+</ul>
+<h2 id="实现">3. 实现</h2>
+<p>核心逻辑十分简单，将字符串用  <code>/</code> 切分， 然后去掉为空的部分， 在组合起来</p>
+<h3 id="切分">切分</h3>
+<pre class=" language-swift"><code class="prism  language-swift">	<span class="token keyword">var</span> _pathComponents<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+	<span class="token keyword">let</span> pathEncoded <span class="token operator">=</span> path<span class="token punctuation">.</span><span class="token function">stringByAddingPercentEncodingWithAllowedCharacters<span class="token punctuation">(</span></span><span class="token builtin">NSCharacterSet</span><span class="token punctuation">.</span><span class="token function">URLPathAllowedCharacterSet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// 将字符串转换为 url 合法的字符串</span>
+	
+	<span class="token keyword">let</span> pathComponents <span class="token operator">=</span> pathEncoded<span class="token punctuation">.</span><span class="token function">componentsSeparatedByString<span class="token punctuation">(</span></span><span class="token string">"/"</span><span class="token punctuation">)</span>
+	
+	pathComponents
+		<span class="token punctuation">.</span><span class="token function">filter<span class="token punctuation">(</span></span><span class="token punctuation">{</span> $<span class="token number">0</span> <span class="token operator">!</span><span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+		<span class="token punctuation">.</span><span class="token function">map<span class="token punctuation">(</span></span><span class="token punctuation">{</span> <span class="token punctuation">(</span>newPart<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">Void</span> <span class="token keyword">in</span>
+			_pathComponents<span class="token punctuation">.</span><span class="token function">append<span class="token punctuation">(</span></span>newPart<span class="token punctuation">)</span>
+		<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<h3 id="组合">组合</h3>
+<pre class=" language-swift"><code class="prism  language-swift">	<span class="token keyword">let</span> distPath <span class="token operator">=</span> _pathComponents
+		<span class="token punctuation">.</span><span class="token function">filter<span class="token punctuation">(</span></span><span class="token punctuation">{</span> $ <span class="token operator">!</span><span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+		<span class="token punctuation">.</span><span class="token function">reduce<span class="token punctuation">(</span></span><span class="token string">"/"</span><span class="token punctuation">,</span> combine<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token punctuation">{</span>$<span class="token number">0</span> <span class="token operator">+</span> $<span class="token number">1</span> <span class="token operator">+</span> <span class="token string">"/"</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h3 id="使用">使用</h3>
+<pre class=" language-swift"><code class="prism  language-swift">	<span class="token keyword">let</span> photoPath <span class="token operator">=</span> <span class="token function">Path<span class="token punctuation">(</span></span>path<span class="token punctuation">:</span> "http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>www<span class="token punctuation">.</span>foo<span class="token punctuation">.</span>com<span class="token comment" spellcheck="true">//bar/", "/image/", "San Francisco.jpg");</span>
+	<span class="token function">print<span class="token punctuation">(</span></span>photoPath<span class="token punctuation">.</span><span class="token function">rawValue<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">//http://www.foo.com/bar/image/San%20Francisco.jpg</span>
+	<span class="token function">print<span class="token punctuation">(</span></span>photoPath<span class="token punctuation">.</span><span class="token function">popLast<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">rawValue<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// http://www.foo.com/bar/image</span>
+	<span class="token keyword">let</span> pathArr <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"first"</span><span class="token punctuation">,</span> <span class="token string">"second"</span><span class="token punctuation">,</span> <span class="token string">"third"</span><span class="token punctuation">]</span>
+	<span class="token keyword">let</span> anoPath <span class="token operator">=</span> <span class="token function">Path<span class="token punctuation">(</span></span>path<span class="token punctuation">:</span> <span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">appendArray<span class="token punctuation">(</span></span>pathArr<span class="token punctuation">)</span>
+	<span class="token function">print<span class="token punctuation">(</span></span>anoPath<span class="token punctuation">.</span><span class="token function">rawValue<span class="token punctuation">(</span></span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// /first/second/third</span>
+</code></pre>
+<h3 id="完整代码">完整代码</h3>
+<p><a href="https://gist.github.com/everyun/3d2caaf17c20122d332b">Path.swift</a></p>
+<h3 id="todo">TODO</h3>
+<ul>
+<li>移除正则依赖， 更独立</li>
+<li><code>./</code> ,  <code>../</code>  格式路径的支持</li>
+</ul></div>
+</body>
+
+</html>
