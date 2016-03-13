@@ -33,7 +33,7 @@
 <li>获取目录风格的路径 : <code>rawValue(dir: Bool)</code></li>
 </ul>
 <h2 id="实现">3. 实现</h2>
-<p>核心逻辑十分简单，将字符串用  <code>/</code> 切分， 然后去掉为空的部分， 在组合起来</p>
+<p>核心逻辑十分简单，将字符串用  <code>/</code> 切分， 然后去掉为空的部分， 组合起来</p>
 <h3 id="切分">切分</h3>
 <pre class=" language-swift"><code class="prism  language-swift">	<span class="token keyword">var</span> _pathComponents<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
 	<span class="token keyword">let</span> pathEncoded <span class="token operator">=</span> path<span class="token punctuation">.</span><span class="token function">stringByAddingPercentEncodingWithAllowedCharacters<span class="token punctuation">(</span></span><span class="token builtin">NSCharacterSet</span><span class="token punctuation">.</span><span class="token function">URLPathAllowedCharacterSet<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// 将字符串转换为 url 合法的字符串</span>
