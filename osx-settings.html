@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mac 设置备份</title>
+  <link rel="stylesheet" href="http://app.classeur.io/base-min.css" />
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+<body>
+  <div class="export-container"><p>因为我的 Mac 是装在台式机上的， 总是时不时抽风， 下午在 Windows 上装了个 HFS 格式硬盘的驱动， 想做磁盘共享， 结果直接把系统搞挂了， 每次重装系统都手忙脚乱的配置， 这次把过程记录下来。</p>
+<hr>
+<h2 id="翻墙">翻墙</h2>
+<p><a href="https://github.com/getlantern/lantern">Lantern</a><br>
+<a href="https://github.com/shadowsocks/shadowsocks-iOS/releases">Shadowsocks</a></p>
+<h2 id="apple-账户">Apple 账户</h2>
+<p>下载 Xcode， 以及购买过的软件</p>
+<h2 id="brew">Brew</h2>
+<pre class=" language-bash"><code class="prism  language-bash">	<span class="token operator">/</span>usr<span class="token operator">/</span>bin<span class="token operator">/</span>ruby <span class="token operator">-</span>e <span class="token string">"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</span>
+	这步很慢，如果 Xcode 没装完的话，需要下一些命令行工具
+</code></pre>
+<h3 id="zsh--oh-my-zsh">Zsh &amp;&amp; Oh-my-zsh</h3>
+<p>习惯了 zsh， 对于我这种总是打错文件夹名的人来说， 绝对是福音<br>
+<a href="http://macshuo.com/?p=676">池建强老师对 zsh 的介绍</a></p>
+<p>切换到 zsh</p>
+<pre class=" language-bash"><code class="prism  language-bash">	chsh <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>zsh
+</code></pre>
+<p>安装 oh-my-zsh</p>
+<pre class=" language-bash"><code class="prism  language-bash">	curl https<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>github<span class="token punctuation">.</span>com<span class="token operator">/</span>robbyrussell<span class="token operator">/</span>oh<span class="token operator">-</span>my<span class="token operator">-</span>zsh<span class="token operator">/</span>raw<span class="token operator">/</span>master<span class="token operator">/</span>tools<span class="token operator">/</span><span class="token function">install</span><span class="token punctuation">.</span>sh
+	sh <span class="token function">install</span><span class="token punctuation">.</span>sh
+</code></pre>
+<h3 id="终端配置">终端配置</h3>
+<p><code>Preferences -&gt; Profile -&gt; Shell -&gt; When the shell exits</code> -&gt; <code>close the window</code><br>
+不是特别懂这个默认逻辑， 为什么进程都退出了， 窗口还不关</p>
+<p><a href="https://github.com/mozilla/Fira">Mozilla-Fira</a> 字体， 强烈推荐</p>
+<h3 id="brew-安装的-程序">brew 安装的 程序</h3>
+<pre class=" language-bash"><code class="prism  language-bash"> brew <span class="token function">install</span> <span class="token function">wget</span> cask 
+ brew <span class="token function">install</span> mysql mongodb redis
+ brew <span class="token function">install</span> shadowsocks<span class="token operator">-</span>libev proxychains<span class="token operator">-</span>ng
+</code></pre>
+<h3 id="命令行代理设置">命令行代理设置</h3>
+<p>shadowsocks-libev 是为了给 proxychains 提供 socks5 代理， 不仅用于浏览器</p>
+<pre class=" language-bash"><code class="prism  language-bash">	vim <span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>etc<span class="token operator">/</span>proxychains<span class="token punctuation">.</span>conf
+	<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+	<span class="token punctuation">[</span>ProxyList<span class="token punctuation">]</span>
+	socks5 <span class="token number">127.0</span><span class="token punctuation">.</span>0<span class="token punctuation">.</span>1 <span class="token number">1081</span>
+	
+	<span class="token keyword">echo</span> <span class="token string">'alias fuck="proxychains4"'</span> <span class="token operator">&gt;</span><span class="token operator">&gt;</span> <span class="token operator">~</span><span class="token operator">/</span><span class="token punctuation">.</span>zshrc
+</code></pre>
+<h3 id="brew-cask-安装的程序">brew cask 安装的程序</h3>
+<pre><code>	brew cask install launchrocket wireshark
+	fly brw cask install charles
+</code></pre>
+<h3 id="语言环境">语言环境</h3>
+<p><a href="https://nodejs.org/en/">Node.js</a></p>
+<pre class=" language-bash"><code class="prism  language-bash">	npm config <span class="token keyword">set</span> registry https<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>npm<span class="token punctuation">.</span>taobao<span class="token punctuation">.</span>org
+	<span class="token function">chmod</span> <span class="token operator">-</span>R <span class="token number">777</span> <span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>lib<span class="token operator">/</span>
+	npm <span class="token function">install</span> yo webpack gulp grunt<span class="token operator">-</span>cli bower <span class="token operator">-</span>g
+</code></pre>
+<p><a href="https://golang.org/dl/">Golong</a><br>
+<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">Java</a></p>
+<p>PHP</p>
+<pre class=" language-bash"><code class="prism  language-bash">	brew cask
+	brew search php56 <span class="token operator">|</span><span class="token function">xargs</span> brew <span class="token function">install</span> 
+</code></pre>
+<h3 id="ide">IDE</h3>
+<p><a href="http://www.sublimetext.com/3">Sublime Text</a><br>
+<a href="https://www.jetbrains.com/">JetBrains系列</a><br>
+对了， JetBrains 专业版现在对<a href="https://www.jetbrains.com/student/">学生免费</a>， 可以通过 edu 邮箱或者上传学生证的方式来申请</p></div>
+</body>
+
+</html>
