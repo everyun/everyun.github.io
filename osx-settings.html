@@ -47,11 +47,15 @@
 	<span class="token punctuation">[</span>ProxyList<span class="token punctuation">]</span>
 	socks5 <span class="token number">127.0</span><span class="token punctuation">.</span>0<span class="token punctuation">.</span>1 <span class="token number">1081</span>
 	
-	<span class="token keyword">echo</span> <span class="token string">'alias fuck="proxychains4"'</span> <span class="token operator">&gt;</span><span class="token operator">&gt;</span> <span class="token operator">~</span><span class="token operator">/</span><span class="token punctuation">.</span>zshrc
+	<span class="token keyword">echo</span> <span class="token string">'alias fly="proxychains4"'</span> <span class="token operator">&gt;</span><span class="token operator">&gt;</span> <span class="token operator">~</span><span class="token operator">/</span><span class="token punctuation">.</span>zshrc
 </code></pre>
 <h3 id="brew-cask-安装的程序">brew cask 安装的程序</h3>
 <pre><code>	brew cask install launchrocket wireshark
-	fly brw cask install charles
+	fly brw cask install charles dropbox google-photos-backup onedrive atom virtualbox
+</code></pre>
+<h3 id="gem-安装程序">Gem 安装程序</h3>
+<pre class=" language-bash"><code class="prism  language-bash">	<span class="token function">sudo</span> gem update <span class="token operator">--</span>system 
+	<span class="token function">sudo</span> gem <span class="token function">install</span> cocoapods sass
 </code></pre>
 <h3 id="语言环境">语言环境</h3>
 <p><a href="https://nodejs.org/en/">Node.js</a></p>
@@ -66,9 +70,22 @@
 	brew search php56 <span class="token operator">|</span><span class="token function">xargs</span> brew <span class="token function">install</span> 
 </code></pre>
 <h3 id="ide">IDE</h3>
-<p><a href="http://www.sublimetext.com/3">Sublime Text</a><br>
+<p><a href="http://developer.android.com/sdk/index.html">Android Studio</a><br>
+<a href="http://www.sublimetext.com/3">Sublime Text</a><br>
 <a href="https://www.jetbrains.com/">JetBrains系列</a><br>
-对了， JetBrains 专业版现在对<a href="https://www.jetbrains.com/student/">学生免费</a>， 可以通过 edu 邮箱或者上传学生证的方式来申请</p></div>
+对了， JetBrains 专业版现在对<a href="https://www.jetbrains.com/student/">学生免费</a>， 可以通过 edu 邮箱或者上传学生证的方式来申请</p>
+<h3 id="xcode-配置">Xcode 配置</h3>
+<p><a href="https://raw.github.com/alcatraz/Alcatraz/master/Scripts/install.sh">Alcatraz</a></p>
+<pre class=" language-bash"><code class="prism  language-bash">	fly <span class="token function">wget</span> https<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>raw<span class="token punctuation">.</span>github<span class="token punctuation">.</span>com<span class="token operator">/</span>alcatraz<span class="token operator">/</span>Alcatraz<span class="token operator">/</span>master<span class="token operator">/</span>Scripts<span class="token operator">/</span><span class="token function">install</span><span class="token punctuation">.</span>sh
+	fly sh <span class="token function">install</span><span class="token punctuation">.</span>sh
+</code></pre>
+<h4 id="插件">插件</h4>
+<p><a href="https://github.com/FuzzyAutocomplete/FuzzyAutocompletePlugin">FuzzyAutocompletePlugin</a>  自动完成<br>
+<a href="https://github.com/poboke/ActivatePowerMode">ActivatePowerMode</a> 炫酷编辑效果， 哈哈<br>
+<a href="https://github.com/stefanceriu/SCXcodeMiniMap">SCXcodeMiniMap</a> 代码地图<br>
+<a href="https://github.com/onevcat/VVDocumenter-Xcode">VVDocumenter-Xcode</a> 辅助生成文档<br>
+<a href="https://github.com/wangshengjia/VWInstantRun">VWInstantRun</a> 运行局部代码<br>
+<a href="https://github.com/trawor/XToDo">XToDo</a>  TODO 管理</p></div>
 </body>
 
 </html>
