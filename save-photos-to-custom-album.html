@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>保存图片视频到指定相册</title>
+  <link rel="stylesheet" href="http://app.classeur.io/base-min.css" />
+  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+
+<body>
+  <div class="export-container"><p>项目中有个需求， 需要把下载到应用 Document 文件夹下的图片存储到相册中， 方便用户查看， 可以用 Photo 库和 AssetsLibrary 来实现，本文分别给出两种实现方式</p>
+<h3 id="assetslibrary">AssetsLibrary</h3>
+<pre class=" language-swift"><code class="prism  language-swift"><span class="token keyword">typealias</span> <span class="token builtin">CompletionHandler</span> <span class="token operator">=</span> <span class="token punctuation">(</span>success<span class="token punctuation">:</span><span class="token builtin">Bool</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">Void</span>
+
+<span class="token keyword">import</span> <span class="token builtin">Foundation</span>
+<span class="token keyword">import</span> <span class="token builtin">AssetsLibrary</span>
+
+<span class="token keyword">class</span> <span class="token class-name">PhotoHelper</span><span class="token punctuation">:</span> <span class="token builtin">NSObject</span> <span class="token punctuation">{</span>
+    
+    <span class="token keyword">let</span> customAlbumName <span class="token operator">=</span> <span class="token string">"自定义相册"</span>
+    <span class="token keyword">let</span> asLib <span class="token operator">=</span> <span class="token function">ALAssetsLibrary<span class="token punctuation">(</span></span><span class="token punctuation">)</span>
+    <span class="token keyword">var</span> group<span class="token punctuation">:</span> <span class="token builtin">ALAssetsGroup</span><span class="token operator">?</span>
+    
+    <span class="token keyword">static</span> <span class="token keyword">let</span> sharedInstance <span class="token operator">=</span> <span class="token function">PhotoHelper<span class="token punctuation">(</span></span><span class="token punctuation">)</span>
+    
+    <span class="token keyword">override</span> <span class="token keyword">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token keyword">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true">// 首先枚举相册， 如果相册不存在则创建</span>
+        asLib<span class="token punctuation">.</span><span class="token function">enumerateGroupsWithTypes<span class="token punctuation">(</span></span><span class="token builtin">ALAssetsGroupAlbum</span><span class="token punctuation">,</span> usingBlock<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>group<span class="token punctuation">:</span> <span class="token builtin">ALAssetsGroup</span><span class="token operator">!</span><span class="token punctuation">,</span> stop<span class="token punctuation">:</span><span class="token builtin">UnsafeMutablePointer</span><span class="token operator">&lt;</span><span class="token builtin">ObjCBool</span><span class="token operator">&gt;</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+            <span class="token keyword">if</span> group <span class="token operator">!</span><span class="token operator">=</span> <span class="token constant">nil</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> group<span class="token punctuation">.</span><span class="token function">valueForProperty<span class="token punctuation">(</span></span><span class="token builtin">ALAssetsGroupPropertyName</span><span class="token punctuation">)</span> <span class="token keyword">as</span><span class="token operator">!</span> <span class="token builtin">String</span> <span class="token operator">==</span> <span class="token keyword">self</span><span class="token punctuation">.</span>customAlbumName <span class="token punctuation">{</span>
+                    <span class="token keyword">self</span><span class="token punctuation">.</span>group <span class="token operator">=</span> group
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+	            <span class="token comment" spellcheck="true">// 创建一个相册</span>
+                <span class="token keyword">self</span><span class="token punctuation">.</span>asLib<span class="token punctuation">.</span><span class="token function">addAssetsGroupAlbumWithName<span class="token punctuation">(</span></span><span class="token keyword">self</span><span class="token punctuation">.</span>customAlbumName<span class="token punctuation">,</span> resultBlock<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>group<span class="token punctuation">:</span><span class="token builtin">ALAssetsGroup</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+                    <span class="token keyword">if</span> group <span class="token operator">!</span><span class="token operator">=</span> <span class="token constant">nil</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">self</span><span class="token punctuation">.</span>group <span class="token operator">=</span> group
+                    <span class="token punctuation">}</span>
+                    <span class="token punctuation">}</span><span class="token punctuation">,</span> failureBlock<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>e<span class="token punctuation">:</span><span class="token builtin">NSError</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+                        
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>e<span class="token punctuation">:</span> <span class="token builtin">NSError</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+	<span class="token comment" spellcheck="true">// 当找到指定相册时， 会返回一个 ALassetsGroup</span>
+	<span class="token comment" spellcheck="true">// 然后取到对应图片／视频的 AlAsset 之后调用 group.addAsset(alasset) 即可保存到指定相册</span>
+	<span class="token comment" spellcheck="true">// 获取 AlAsset 可以用 AlAssLibrary.assetForURL(NSURL)方法</span>
+	<span class="token comment" spellcheck="true">// 但是这里的 URL 不可以是 file:// 的 URL， 而必须是 assets-library:// 的URL</span>
+	<span class="token comment" spellcheck="true">// 所以，必须现将图片写入系统相册， 然后才能得到 assets-library:// 的URL</span>
+    
+    <span class="token keyword">func</span> <span class="token function">saveVideo<span class="token punctuation">(</span></span>path<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">,</span> completionHandler<span class="token punctuation">:</span> <span class="token builtin">CompletionHandler</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>asLib<span class="token punctuation">.</span><span class="token function">writeVideoAtPathToSavedPhotosAlbum<span class="token punctuation">(</span></span><span class="token function">NSURL<span class="token punctuation">(</span></span>fileURLWithPath<span class="token punctuation">:</span> path<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>videoUrl<span class="token punctuation">:</span><span class="token constant">NSURL</span><span class="token operator">!</span><span class="token punctuation">,</span> e<span class="token punctuation">:</span><span class="token builtin">NSError</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+            <span class="token keyword">if</span> e <span class="token operator">==</span> <span class="token constant">nil</span> <span class="token operator">&amp;&amp;</span> videoUrl <span class="token operator">!</span><span class="token operator">=</span> <span class="token constant">nil</span> <span class="token punctuation">{</span>
+                <span class="token keyword">self</span><span class="token punctuation">.</span>asLib<span class="token punctuation">.</span><span class="token function">assetForURL<span class="token punctuation">(</span></span>videoUrl<span class="token punctuation">,</span> resultBlock<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>videoAsset<span class="token punctuation">:</span><span class="token builtin">ALAsset</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+                    <span class="token keyword">if</span> <span class="token keyword">let</span> group <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>group <span class="token punctuation">{</span>
+                        <span class="token keyword">let</span> result <span class="token operator">=</span> group<span class="token punctuation">.</span><span class="token function">addAsset<span class="token punctuation">(</span></span>videoAsset<span class="token punctuation">)</span>
+                        <span class="token keyword">if</span> result <span class="token punctuation">{</span>
+                            <span class="token function">completionHandler<span class="token punctuation">(</span></span>success<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
+                        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                            <span class="token function">completionHandler<span class="token punctuation">(</span></span>success<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+                        <span class="token punctuation">}</span>
+                    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                        <span class="token function">completionHandler<span class="token punctuation">(</span></span>success<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">}</span>
+                    <span class="token punctuation">}</span><span class="token punctuation">,</span> failureBlock<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>e<span class="token punctuation">:</span><span class="token builtin">NSError</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+                        <span class="token function">completionHandler<span class="token punctuation">(</span></span>success<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token function">dispatch_async<span class="token punctuation">(</span></span><span class="token function">dispatch_get_main_queue<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token function">completionHandler<span class="token punctuation">(</span></span>success<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>这样就完成了使用 AlAssetsLibrary 将图片写入指定相册。</p>
+<p>在 iOS 8.0 以后， Apple 建议我们应该使用 Photo 库来处理照片相关的操作， Photo 库性能更高。</p>
+<h3 id="photo-framework">Photo Framework</h3>
+<pre class=" language-swift"><code class="prism  language-swift"><span class="token keyword">typealias</span> <span class="token builtin">CompletionHandler</span> <span class="token operator">=</span> <span class="token punctuation">(</span>success<span class="token punctuation">:</span><span class="token builtin">Bool</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">Void</span>
+
+<span class="token keyword">import</span> <span class="token builtin">Foundation</span>
+<span class="token keyword">import</span> <span class="token builtin">Photos</span>
+
+<span class="token keyword">class</span> <span class="token class-name">PhotoHelper</span><span class="token punctuation">:</span> <span class="token builtin">NSObject</span> <span class="token punctuation">{</span>
+    
+    <span class="token keyword">let</span> customAlbumName <span class="token operator">=</span> <span class="token string">"ppt"</span>
+    <span class="token keyword">var</span> assetCollection<span class="token punctuation">:</span> <span class="token builtin">PHAssetCollection</span><span class="token operator">?</span>
+    
+    <span class="token keyword">static</span> <span class="token keyword">let</span> sharedInstance <span class="token operator">=</span> <span class="token function">PhotoHelper<span class="token punctuation">(</span></span><span class="token punctuation">)</span>
+    
+    <span class="token keyword">override</span> <span class="token keyword">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token keyword">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        
+        
+        
+        
+        <span class="token keyword">func</span> <span class="token function">fetchAssetCollectionForAlbum<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">PHAssetCollection</span><span class="token operator">!</span> <span class="token punctuation">{</span>
+            
+            <span class="token keyword">let</span> fetchOptions <span class="token operator">=</span> <span class="token function">PHFetchOptions<span class="token punctuation">(</span></span><span class="token punctuation">)</span>
+            fetchOptions<span class="token punctuation">.</span>predicate <span class="token operator">=</span> <span class="token function">NSPredicate<span class="token punctuation">(</span></span>format<span class="token punctuation">:</span> <span class="token string">"title = %@"</span><span class="token punctuation">,</span> customAlbumName<span class="token punctuation">)</span>
+            <span class="token keyword">let</span> collection <span class="token operator">=</span> <span class="token builtin">PHAssetCollection</span><span class="token punctuation">.</span><span class="token function">fetchAssetCollectionsWithType<span class="token punctuation">(</span></span><span class="token punctuation">.</span><span class="token builtin">Album</span><span class="token punctuation">,</span> subtype<span class="token punctuation">:</span> <span class="token punctuation">.</span><span class="token builtin">Any</span><span class="token punctuation">,</span> options<span class="token punctuation">:</span> fetchOptions<span class="token punctuation">)</span>
+            
+            <span class="token keyword">if</span> <span class="token keyword">let</span> firstObject<span class="token punctuation">:</span> <span class="token builtin">AnyObject</span> <span class="token operator">=</span> collection<span class="token punctuation">.</span>firstObject <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> collection<span class="token punctuation">.</span>firstObject <span class="token keyword">as</span><span class="token operator">!</span> <span class="token builtin">PHAssetCollection</span>
+            <span class="token punctuation">}</span>
+            
+            <span class="token keyword">return</span> <span class="token constant">nil</span>
+        <span class="token punctuation">}</span>
+        
+        <span class="token keyword">if</span> <span class="token keyword">let</span> assetCollection <span class="token operator">=</span> <span class="token function">fetchAssetCollectionForAlbum<span class="token punctuation">(</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">self</span><span class="token punctuation">.</span>assetCollection <span class="token operator">=</span> assetCollection
+            <span class="token keyword">return</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// 这里提供了两个方法，performChangeAndWait 和 performChanges </span>
+        <span class="token comment" spellcheck="true">// 不同之处在与前者是同步方法，即方法执行后才会完成本单例的实例化，而后者则是异步方法，因为实例化之后要立即调用 assetCollection，所以当这个相册不存在需要创建时， assetColleciton 可能为空。</span>
+            <span class="token keyword">do</span> <span class="token punctuation">{</span>
+                try <span class="token builtin">PHPhotoLibrary</span><span class="token punctuation">.</span><span class="token function">sharedPhotoLibrary<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">performChangesAndWait<span class="token punctuation">(</span></span><span class="token punctuation">{</span>
+                    <span class="token builtin">PHAssetCollectionChangeRequest</span><span class="token punctuation">.</span><span class="token function">creationRequestForAssetCollectionWithTitle<span class="token punctuation">(</span></span><span class="token keyword">self</span><span class="token punctuation">.</span>customAlbumName<span class="token punctuation">)</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token keyword">self</span><span class="token punctuation">.</span>assetCollection <span class="token operator">=</span> <span class="token function">fetchAssetCollectionForAlbum<span class="token punctuation">(</span></span><span class="token punctuation">)</span>
+            <span class="token punctuation">}</span> catch <span class="token keyword">let</span> e <span class="token keyword">as</span> <span class="token builtin">NSError</span> <span class="token punctuation">{</span>
+                
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        
+    <span class="token punctuation">}</span>
+    
+    <span class="token keyword">func</span> <span class="token function">saveVideo<span class="token punctuation">(</span></span>path<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">,</span> completionHandler<span class="token punctuation">:</span> <span class="token builtin">CompletionHandler</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> assetCollection <span class="token operator">!</span><span class="token operator">=</span> <span class="token constant">nil</span> <span class="token punctuation">{</span>
+            <span class="token builtin">PHPhotoLibrary</span><span class="token punctuation">.</span><span class="token function">sharedPhotoLibrary<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">performChanges<span class="token punctuation">(</span></span><span class="token punctuation">{</span>
+                <span class="token keyword">let</span> assetChange <span class="token operator">=</span> <span class="token builtin">PHAssetChangeRequest</span><span class="token punctuation">.</span><span class="token function">creationRequestForAssetFromVideoAtFileURL<span class="token punctuation">(</span></span><span class="token function">NSURL<span class="token punctuation">(</span></span>fileURLWithPath<span class="token punctuation">:</span> path<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token keyword">let</span> placeHolder <span class="token operator">=</span> assetChange<span class="token operator">!</span><span class="token punctuation">.</span>placeholderForCreatedAsset
+                <span class="token keyword">let</span> albumChange <span class="token operator">=</span> <span class="token function">PHAssetCollectionChangeRequest<span class="token punctuation">(</span></span>forAssetCollection<span class="token punctuation">:</span> <span class="token keyword">self</span><span class="token punctuation">.</span>assetCollection<span class="token operator">!</span><span class="token punctuation">)</span>
+                albumChange<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">addAssets<span class="token punctuation">(</span></span><span class="token punctuation">[</span>placeHolder<span class="token operator">!</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+                <span class="token punctuation">}</span><span class="token punctuation">,</span> completionHandler<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>success<span class="token punctuation">:</span><span class="token builtin">Bool</span><span class="token punctuation">,</span> e<span class="token punctuation">:</span><span class="token builtin">NSError</span><span class="token operator">?</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+                    <span class="token function">completionHandler<span class="token punctuation">(</span></span>success<span class="token punctuation">:</span> success<span class="token punctuation">)</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token function">completionHandler<span class="token punctuation">(</span></span>success<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    
+    <span class="token keyword">func</span> <span class="token function">savePhoto<span class="token punctuation">(</span></span>path<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">,</span> completionHandler<span class="token punctuation">:</span> <span class="token builtin">CompletionHandler</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> assetCollection <span class="token operator">!</span><span class="token operator">=</span> <span class="token constant">nil</span> <span class="token punctuation">{</span>
+            <span class="token builtin">PHPhotoLibrary</span><span class="token punctuation">.</span><span class="token function">sharedPhotoLibrary<span class="token punctuation">(</span></span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">performChanges<span class="token punctuation">(</span></span><span class="token punctuation">{</span> 
+                <span class="token keyword">let</span> assetChange <span class="token operator">=</span> <span class="token builtin">PHAssetChangeRequest</span><span class="token punctuation">.</span><span class="token function">creationRequestForAssetFromImageAtFileURL<span class="token punctuation">(</span></span><span class="token function">NSURL<span class="token punctuation">(</span></span>fileURLWithPath<span class="token punctuation">:</span> path<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token keyword">let</span> placeHolder <span class="token operator">=</span> assetChange<span class="token operator">!</span><span class="token punctuation">.</span>placeholderForCreatedAsset
+                <span class="token keyword">let</span> albumChange <span class="token operator">=</span> <span class="token function">PHAssetCollectionChangeRequest<span class="token punctuation">(</span></span>forAssetCollection<span class="token punctuation">:</span> <span class="token keyword">self</span><span class="token punctuation">.</span>assetCollection<span class="token operator">!</span><span class="token punctuation">)</span>
+                albumChange<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">addAssets<span class="token punctuation">(</span></span><span class="token punctuation">[</span>placeHolder<span class="token operator">!</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+                <span class="token punctuation">}</span><span class="token punctuation">,</span> completionHandler<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>success<span class="token punctuation">:</span><span class="token builtin">Bool</span><span class="token punctuation">,</span> e<span class="token punctuation">:</span><span class="token builtin">NSError</span><span class="token operator">?</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+                    <span class="token function">completionHandler<span class="token punctuation">(</span></span>success<span class="token punctuation">:</span> success<span class="token punctuation">)</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token function">completionHandler<span class="token punctuation">(</span></span>success<span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+</body>
+
+</html>
